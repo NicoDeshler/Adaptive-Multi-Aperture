@@ -12,8 +12,6 @@ function [pj,qj,uj] = Indices_HG_GMMAperture(n_max,n_apertures)
             for q = 1:p
                 pj = [pj, p-q];
                 qj = [qj, q-1];
-                %pj = [pj, p];
-                %qj = [qj, q];
                 uj = [uj, v];
             end
         end

@@ -18,12 +18,13 @@ r = d/2;
 psf_tilde_sig = r/3; % standard deviation of a single aperture
 ap1 = [0,0,R];
 ap2 = [Polygon(2,0,'radius',R-r),r/3*ones(2,1)];
+ap3 = [Polygon(3,0,'radius',R-r),r/3*ones(3,1)];
 
 %aper_coords = Golay9(R); %aper_coords = [0,0];
 %ap_num = size(aper_coords,1);
 %aper_rads = psf_tilde_sig*ones(ap_num,1);  %aper_rads = R; 
 %aperture = [aper_coords,aper_rads];
-aperture = ap1;
+aperture = ap3;
 ap_num = size(aperture,1);
 aper_coords = aperture(:,1:2);
 aper_rads = aperture(:,3);
@@ -51,24 +52,25 @@ end
 % D_eff, where D_eff is the diameter of the minimum enclosing circle 
 % that contains all of the sub-apertures.
 %rl = 2*pi * 1.2197/D_eff; % rayleigh length in units of [rads/length]
-rl = 1;
-
+rl = (2*sqrt(2*log(2))) * 1/(2*R_eff/3); % gaussian aperture rayleigh length
 
 % ----------------- Hermite-Gaussian Local-Aperture Modes----------------
 % KWAN WORKS IN COORDINATES WITH DIMENSIONS OF RAYLEIGH LENGTH. SO WE MUST
 % DEFINE THE GS BASIS MODES AS FUNCTIONS OF POSITION SPACE COORDINATES WITH
 % UNITS OF RAYLEIGH. 
-max_order = 3; 
-n_HG_modes = max_order + 1;                            % number of 1D HG modes
-N_modes = ap_num*(max_order+1)*(max_order+2)/2;     % number of local aperture 2D HG modes
+max_order = 5; 
+n_HG_modes = max_order+1;                            % number of 1D HG modes
+N_modes = ap_num*(max_order)*(max_order+1)/2;     % number of local aperture 2D HG modes
 [pj,qj,uj] = Indices_HG_GMMAperture(max_order,ap_num); % vector of linear index map for each mode
-U = dftmtx(ap_num);
-psf_sig = rl;
+U = dftmtx(ap_num)/sqrt(ap_num); % unitary matrix
+psf_sig = 1/(2*r/3); % rl = FWHM of gaussian
+
+aperture = 2*psf_sig*aperture; % convert k-space coordinate units
 
 
 save('aperture.mat','aperture','U','n_HG_modes','N_modes','pj','qj','uj','psf_sig')
-scene = [.5,-.25,0;
-         .5,+.25,0];
+scene = [.5,0,-.25;
+         .5,0,+.25];
 
 
 measurement_multipho(scene(:,:,1), ...
@@ -80,7 +82,7 @@ measurement_multipho(scene(:,:,1), ...
                      'bri_known',1,...
                      'proj_method','Personick',...
                      'per_eps', 0,...% 0<=per_eps<=1; HG 0 mode background
-                     'n_HG_modes', N_modes...
+                     'n_HG_modes', 5 ...
                     ); 
 
  measurement_multipho(scene(:,:,1), ...
