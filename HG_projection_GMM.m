@@ -40,13 +40,26 @@ for count = 1:N_modes
     HG_proj(count).ind_x = pj(count);
     HG_proj(count).ind_y = qj(count);
     
+    est(2:3) = (2 * psf_sig);
+    bar_mu  = (2 * psf_sig) * est(:,2:3);              % mean of gaussian posteriors for each source
+    s_b = est(:,1);                                    % brightness 
     
-    HG_proj(count).xy = (est(:,2:3)).^(repmat([HG_proj(count).ind_x, HG_proj(count).ind_y], [size(est,1),1])).*exp(-est(:,2:3).^2/2) ...
+    
+    HG_proj(count).xy = (bar_mu).^(repmat([HG_proj(count).ind_x, HG_proj(count).ind_y], [size(est,1),1])).*exp(-bar_mu.^2/2) ...
                                ./repmat(sqrt([factorial(HG_proj(count).ind_x),factorial(HG_proj(count).ind_y)]), [size(est,1),1]);
 
-    HG_proj(count).proj = prod(conj(phase_fn(est,aperture,U)).' .* HG_proj(count).xy, 2);
+                           
+    HG_proj(count).proj = prod(conj(phase_fn(bar_mu',aperture,U)).' .* HG_proj(count).xy, 2);
+    
+    HG_proj(count).total = sum(s_b .* prod( conj(phase_fn(bar_mu',aperture,U)).' .* HG_proj(count).xy, 2).^2, 1);    % multiply in source brighnesses
+    
+    
+    %HG_proj(count).xy = (est(:,2:3)).^(repmat([HG_proj(count).ind_x, HG_proj(count).ind_y], [size(est,1),1])).*exp(-est(:,2:3).^2/2) ...
+    %                           ./repmat(sqrt([factorial(HG_proj(count).ind_x),factorial(HG_proj(count).ind_y)]), [size(est,1),1]);
 
-    HG_proj(count).total = sum(est(:,1) .* prod( conj(phase_fn(est,aperture,U)).' .* HG_proj(count).xy, 2).^2, 1);    % multiply in source brighnesses    
+    %HG_proj(count).proj = prod(conj(phase_fn(est,aperture,U)).' .* HG_proj(count).xy, 2);
+
+    %HG_proj(count).total = sum(est(:,1) .* prod( conj(phase_fn(est,aperture,U)).' .* HG_proj(count).xy, 2).^2, 1);    % multiply in source brighnesses    
 end
 
 

@@ -8,12 +8,18 @@ function [pj,qj,uj] = Indices_HG_GMMAperture(n_max,n_apertures)
     
     % aperture, radial, and azimuthal index list     
     for v = 1:n_apertures
-        for p = 0:n_max
-            for q = 0:p
-                pj = [pj, p];
-                qj = [qj, q];
+        for p = 1:n_max
+            for q = 1:p
+                pj = [pj, p-q];
+                qj = [qj, q-1];
+                %pj = [pj, p];
+                %qj = [qj, q];
                 uj = [uj, v];
             end
         end
     end    
 end
+
+
+
+
