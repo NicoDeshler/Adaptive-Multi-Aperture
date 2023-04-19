@@ -9,32 +9,37 @@ function HG_proj = HG_projection_GMM(n_mode, est)
 %   2) mixing unitary matrix 
 load 'aperture.mat';
 n_ap = size(aperture,1);
-est = est(1:nnz(est(:,1)),:);
+%est = est(1:nnz(est(:,1)),:);
+
+
+% parameters
+s_b = reshape(est(:,1,:),[size(est,1),1,size(est,3)]);          % source brightnesses 
+bar_mu = reshape(est(:,2:3,:),[size(est,1),2,1,size(est,3)]);   % source positions
+
+% multi-aperture phase
+Phi_xy = exp(1i*pagemtimes(aperture(:,1:2),'none', bar_mu,'transpose'));
+%Phi_xy = exp(1i*aperture(:,1:2)*bar_mu');
+B = squeeze(1/sqrt(n_ap) * pagemtimes(U , Phi_xy));
+
+
+% single-aperture HG terms
+pq = reshape([pj;qj],[1,2,numel(pj)]);            % HG powers for x and y
+HG = squeeze(prod(bar_mu.^pq .* exp(-bar_mu.^2/2)...
+         ./ sqrt(factorial(pq)),2));
+
+
+
+%HG_multiap = B(uj,:)'.*HG;
+HG_multiap = permute(conj(B(uj,:,:)),[2,1,3]) .*HG;
+
+
+HG_proj = HG_multiap;
+
+
 
 %{
-count = 1;
-
-for k = 1:n_apertures
-    for i = 1:n_mode
-        for j = 1:i
-            HG_proj(count).ind_k = k;
-            HG_proj(count).ind_x = i-j;
-            HG_proj(count).ind_y = i-HG_proj(count).ind_x-1;
-
-            HG_proj(count).xy = (est(:,2:3)).^(repmat([HG_proj(count).ind_x, HG_proj(count).ind_y], [size(est,1),1])).*exp(-est(:,2:3).^2/2) ...
-                               ./repmat(sqrt([factorial(HG_proj(count).ind_x),factorial(HG_proj(count).ind_y)]), [size(est,1),1]);
-
-            HG_proj(count).proj = prod(conj(phase_fn(est,aperture,U)).* HG_proj(count).xy, 2);
-
-            HG_proj(count).total = sum(est(:,1).*prod( conj(phase_fn(est,aperture,U)) .* HG_proj(count).xy, 2).^2, 1);    % multiply in source brighnesses
-
-            count = count + 1;
-
-        end
-    end
-end
-%}
-
+% ORIGINAL LINEAR INDEXING IMPLEMENTATION FOR MULTI_APERTURE - RIGHT BUT
+SLOW
 for count = 1:numel(uj)
     HG_proj(count).ind_u = uj(count);
     HG_proj(count).ind_x = pj(count);
@@ -55,9 +60,9 @@ for count = 1:numel(uj)
     % U * exp(A*R') = nxm
     Phi_xy = exp(1i*aperture(:,1:2)*bar_mu');
     
-    B = U * Phi_xy;
+    B = 1/sqrt(n_ap) * U(HG_proj(count).ind_u,:) * Phi_xy;
     
-    HG_proj(count).proj = 1/n_ap * conj(B).' .* prod(HG_proj(count).xy, 2);
+    HG_proj(count).proj = conj(B).' .* prod(HG_proj(count).xy, 2);
     
     HG_proj(count).total = sum( s_b .* HG_proj(count).proj, 1); 
     
@@ -73,6 +78,8 @@ for count = 1:numel(uj)
 
     %HG_proj(count).total = sum(est(:,1) .* prod( conj(phase_fn(est,aperture,U)).' .* HG_proj(count).xy, 2).^2, 1);    % multiply in source brighnesses    
 end
+%}
+
 
 
 end
