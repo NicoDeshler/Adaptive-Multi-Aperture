@@ -50,4 +50,4 @@
 
 module load matlab
 
-matlab matlab -nodisplay -nosplash -batch "Ap9Survey($SLURM_ARRAY_TASK_ID,94)" output_{$SLURM_ARRAY_TASK_ID}.txt
+matlab matlab -nodisplay -nosplash -batch "script_multiphoton_run" output_{$SLURM_ARRAY_TASK_ID}.txt

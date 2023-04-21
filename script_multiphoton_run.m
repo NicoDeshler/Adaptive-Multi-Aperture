@@ -24,7 +24,7 @@ ap4 = [Polygon(4,0,'separation',2*r),sigma*ones(4,1)];
 golay9 = [Golay9(6*r),sigma*ones(9,1)];
 
 % set the aperture
-aperture = ap2;
+aperture = ap3;
 ap_num = size(aperture,1);
 aper_coords = aperture(:,1:2);
 aper_sigs = aperture(:,3);
@@ -49,7 +49,9 @@ aperture = aperture / sigma; % this step is critical - the reference unit in Kwa
 VisualizeGaussianAperture(aperture)
 
 % ---------------------- scene --------------------------------- 
-src_coords = Polygon(3,0,'separation',1)...
+load('test_scene.mat')
+scene = scene(:,:,1);
+src_coords = scene(:,2:3)...
               * sigma / sigma_eff;
               
 num_src = size(src_coords,1);
@@ -84,7 +86,7 @@ end
 % KWAN WORKS IN COORDINATES WITH DIMENSIONS OF RAYLEIGH LENGTH. SO WE MUST
 % DEFINE THE GS BASIS MODES AS FUNCTIONS OF POSITION SPACE COORDINATES WITH
 % UNITS OF RAYLEIGH. 
-max_order = 5; 
+max_order = 4; 
 n_HG_modes = max_order+1;                                       % number of 1D HG modes
 N_modes = ap_num*(max_order)*(max_order+1)/2;           % number of local aperture 2D HG modes
 [pj,qj,uj] = Indices_HG_GMMAperture(max_order,ap_num);  % vector of linear index map for each mode
