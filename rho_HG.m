@@ -25,5 +25,6 @@ function rho_HG = rho_HG(n_modes, scene)
     
     rho_HG = pagemtimes( (scene(:,1,:).* HG_modes),'ctranspose',HG_modes,'none');
     
+    % tr = arrayfun(@(k) real(trace(rho_HG(:,:,k))),1:size(rho_HG,3));
     %rho_HG = HG_modes'*diag(scene(:,1))*HG_modes;
 end

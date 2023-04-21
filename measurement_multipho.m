@@ -255,11 +255,9 @@ SLD_Est = model_final(cand,likelihood);
 
 cand = cand_check;
 
-clearvars -except SLD_Est seed scene cand
-
 filename = ['SLD_Est_',int2str(seed),'.mat'];
 
-save(filename);
+save(filename, 'SLD_Est', 'seed', 'scene', 'cand');
 %{
 %}
 end

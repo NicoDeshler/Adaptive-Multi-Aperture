@@ -1,35 +1,61 @@
 clc
 addpath('MultiAperture/');
+addpath('MultiAperture/circles_v1.1.1');
+
 
 % load test scene
+%{
 load('test_scene.mat')
 scene = scene(:,:,1);
 figure
 scatter(scene(:,2,1),scene(:,3,1),'filled','black')
 xlabel('x')
 ylabel('y')
+%}
 
 % ---------------------- aperture --------------------------------- 
+sigma = 1;                        % single sub-aperture stdev
+r = 3*sigma;                        % max radius of sub-aperture locations
 
-D = 30;
-R = D/2;
-d = 3;
-r = d/2;
-psf_tilde_sig = r/3; % standard deviation of a single aperture
-ap1 = [0,0,R];
-ap2 = [Polygon(2,0,'radius',R-r),r/3*ones(2,1)];
-ap3 = [Polygon(3,0,'radius',R-r),r/3*ones(3,1)];
+ap1 = [0,0,sigma];
+ap2 = [Polygon(2,pi/2,'separation',2*r),sigma*ones(2,1)];
+ap3 = [Polygon(3,0,'separation',2*r),sigma*ones(3,1)];
+ap4 = [Polygon(4,0,'separation',2*r),sigma*ones(4,1)];
+golay9 = [Golay9(6*r),sigma*ones(9,1)];
 
-%aper_coords = Golay9(R); %aper_coords = [0,0];
-%ap_num = size(aper_coords,1);
-%aper_rads = psf_tilde_sig*ones(ap_num,1);  %aper_rads = R; 
-%aperture = [aper_coords,aper_rads];
+% set the aperture
 aperture = ap2;
 ap_num = size(aperture,1);
 aper_coords = aperture(:,1:2);
-aper_rads = aperture(:,3);
+aper_sigs = aperture(:,3);
+
+% get effective aperture standard deviation
+if ap_num == 1
+    sigma_eff = sigma;
+else
+    R = sqrt(sum((aper_coords - mean(aper_coords,1)).^2,2));
+    sigma_eff = max(R+3*aper_sigs);     % effective gaussian aperture stdev    
+end
+psf_sig = 1/(2*sigma_eff);          % rl = FWHM of gaussian
+rl = (2*sqrt(2*log(2))) * psf_sig;  % gaussian aperture rayleigh length [length units]
 
 
+% rescale aperture units to be fractional units of the sub-aperture standard deviation.
+aperture = aperture / sigma; % this step is critical - the reference unit in Kwan's code is the sigma of an individual sub-aperture
+
+
+
+% visualize the aperture
+VisualizeGaussianAperture(aperture)
+
+% ---------------------- scene --------------------------------- 
+src_coords = Polygon(3,0,'separation',1)...
+              * sigma / sigma_eff;
+              
+num_src = size(src_coords,1);
+scene = [ones(num_src,1)/num_src,src_coords];
+
+%{
 % get the effective aperture diameter
 if ap_num>1
     B = squareform(pdist(aper_coords));             % sub-aperture pairwise centroid distances
@@ -45,6 +71,7 @@ else
     R_eff = aper_rads(1);
     D_eff = 2*R_eff;                         % set the effective aperture diameter to that of the input aperture
 end
+%}
 
 
 % The rayleigh length of the multi-aperture system is defined to be the
@@ -52,43 +79,35 @@ end
 % D_eff, where D_eff is the diameter of the minimum enclosing circle 
 % that contains all of the sub-apertures.
 %rl = 2*pi * 1.2197/D_eff; % rayleigh length in units of [rads/length]
-rl = (2*sqrt(2*log(2))) * 1/(2*R_eff/3); % gaussian aperture rayleigh length
 
 % ----------------- Hermite-Gaussian Local-Aperture Modes----------------
 % KWAN WORKS IN COORDINATES WITH DIMENSIONS OF RAYLEIGH LENGTH. SO WE MUST
 % DEFINE THE GS BASIS MODES AS FUNCTIONS OF POSITION SPACE COORDINATES WITH
 % UNITS OF RAYLEIGH. 
 max_order = 5; 
-n_HG_modes = max_order+1;                            % number of 1D HG modes
-N_modes = ap_num*(max_order)*(max_order+1)/2;     % number of local aperture 2D HG modes
-[pj,qj,uj] = Indices_HG_GMMAperture(max_order,ap_num); % vector of linear index map for each mode
-U = dftmtx(ap_num)/sqrt(ap_num); % unitary matrix
-psf_sig = 1/(2*r/3); % rl = FWHM of gaussian
-
-aperture = 2*psf_sig*aperture; % convert k-space coordinate units
-
+n_HG_modes = max_order+1;                                       % number of 1D HG modes
+N_modes = ap_num*(max_order)*(max_order+1)/2;           % number of local aperture 2D HG modes
+[pj,qj,uj] = Indices_HG_GMMAperture(max_order,ap_num);  % vector of linear index map for each mode
+U = dftmtx(ap_num)/sqrt(ap_num);                        % unitary matrix
 
 save('aperture.mat','aperture','U','n_HG_modes','N_modes','pj','qj','uj','psf_sig')
-scene = [1/3,0,-.25;
-         1/3,0,+.25;
-         1/3,.2, 0];
 
 
 measurement_multipho(scene(:,:,1), ...
-                     'n_max',3, ...
+                     'n_max',num_src, ...
                      'n_pho_group', 10000, ...
                      'n_pho_SLD', 500000, ... % number of photons used throughout bayesian update
                      'n_imag_mu', 1000,...
-                     'n_pri',3,...
+                     'n_pri',num_src,...
                      'bri_known',1,...
                      'proj_method','Personick',...
                      'per_eps', 0,...% 0<=per_eps<=1; HG 0 mode background
-                     'n_HG_modes', 5 ...
+                     'n_HG_modes', max_order ...
                     ); 
-
+%{
  measurement_multipho(scene(:,:,1), ...
                      'n_max', 4, ...
                      'n_imag_mu', 500000, ...
                      'use_SLD', 0);
 
-
+%}

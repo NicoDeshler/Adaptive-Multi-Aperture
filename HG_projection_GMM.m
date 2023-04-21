@@ -12,6 +12,16 @@ n_ap = size(aperture,1);
 %est = est(1:nnz(est(:,1)),:);
 
 
+% gpu setup
+%{
+if gpuDeviceCount("available") && size(est,3)>1
+    est = gpuArray(est);
+    aperture = gpuArray(aperture);
+    U = gpuArray(U);
+end
+%} 
+
+
 % parameters
 s_b = reshape(est(:,1,:),[size(est,1),1,size(est,3)]);          % source brightnesses 
 bar_mu = reshape(est(:,2:3,:),[size(est,1),2,1,size(est,3)]);   % source positions
@@ -19,21 +29,21 @@ bar_mu = reshape(est(:,2:3,:),[size(est,1),2,1,size(est,3)]);   % source positio
 % multi-aperture phase
 Phi_xy = exp(1i*pagemtimes(aperture(:,1:2),'none', bar_mu,'transpose'));
 %Phi_xy = exp(1i*aperture(:,1:2)*bar_mu');
-B = squeeze(1/sqrt(n_ap) * pagemtimes(U , Phi_xy));
+B = 1/sqrt(n_ap) * pagemtimes(U , Phi_xy);
 
 
 % single-aperture HG terms
 pq = reshape([pj;qj],[1,2,numel(pj)]);            % HG powers for x and y
-HG = squeeze(prod(bar_mu.^pq .* exp(-bar_mu.^2/2)...
-         ./ sqrt(factorial(pq)),2));
+HG = prod(bar_mu.^pq .* exp(-bar_mu.^2/2)...
+         ./ sqrt(factorial(pq)),2);
 
 
 
 %HG_multiap = B(uj,:)'.*HG;
-HG_multiap = permute(conj(B(uj,:,:)),[2,1,3]) .*HG;
+HG_multiap = permute(conj(B(uj,:,:,:)),[2,3,1,4]) .*HG;
 
+HG_proj = gather(permute(HG_multiap,[1,3,4,2]));
 
-HG_proj = HG_multiap;
 
 
 
