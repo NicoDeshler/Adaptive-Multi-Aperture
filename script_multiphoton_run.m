@@ -46,7 +46,7 @@ aperture = aperture / sigma; % this step is critical - the reference unit in Kwa
 
 
 % visualize the aperture
-VisualizeGaussianAperture(aperture)
+%VisualizeGaussianAperture(aperture)
 
 % ---------------------- scene --------------------------------- 
 load('test_scene.mat')
