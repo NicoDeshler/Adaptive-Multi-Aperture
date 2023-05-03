@@ -49,14 +49,20 @@ aperture = aperture / sigma; % this step is critical - the reference unit in Kwa
 %VisualizeGaussianAperture(aperture)
 
 % ---------------------- scene --------------------------------- 
+
 load('test_scene.mat')
 scene = scene(:,:,1);
 src_coords = scene(:,2:3)...
               * sigma / sigma_eff;
-              
+
+
+%{
+delta = 1/12;
+src_coords = [-delta/2,0;
+                  +delta/2,0] * sigma / sigma_eff;
+%}              
 num_src = size(src_coords,1);
 scene = [ones(num_src,1)/num_src,src_coords];
-
 %{
 % get the effective aperture diameter
 if ap_num>1
@@ -95,7 +101,7 @@ U = dftmtx(ap_num)/sqrt(ap_num);                        % unitary matrix
 save('aperture.mat','aperture','U','n_HG_modes','N_modes','pj','qj','uj','psf_sig')
 
 
-measurement_multipho(scene(:,:,1), ...
+measurement_multipho(scene, ...
                      'n_max',num_src, ...
                      'n_pho_group', 10000, ...
                      'n_pho_SLD', 500000, ... % number of photons used throughout bayesian update

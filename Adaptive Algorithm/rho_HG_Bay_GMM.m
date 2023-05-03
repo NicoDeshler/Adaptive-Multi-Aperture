@@ -2,7 +2,9 @@ function rho_HG = rho_HG_Bay_GMM(n_modes, scene, V, Mom, varargin)
 
 
    % Parser
-   defaultbri_flag = 0;
+   defaultbri_flag = 0;             % brightness known flag
+   defaultaperture = [0,0,1];       % aperture configuration [kx,ky,r]
+   defaultU = 1;                    % mixing matrix n_ap x n_ap
    
    p = inputParser;
 
@@ -12,6 +14,8 @@ function rho_HG = rho_HG_Bay_GMM(n_modes, scene, V, Mom, varargin)
    addRequired(p,'Mom');
    
    addOptional(p,'bri_flag',defaultbri_flag );
+   addOptional(p,'aperture',defaultaperture);
+   addOptional(p,'U',defaultU)
    
    parse(p, n_modes, scene, V, Mom, varargin{:});
    
@@ -21,14 +25,14 @@ function rho_HG = rho_HG_Bay_GMM(n_modes, scene, V, Mom, varargin)
    Mom = p.Results.Mom;
    
    bri_flag = p.Results.bri_flag;
-   
+   aperture = p.Results.aperture;
+   U = p.Results.U;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     scene = sortrows(scene, 'descend');
 
     scene = scene(1:nnz(scene(:,1)), :);
     
-    load 'aperture.mat'
     n_ap = size(aperture,1);
     H(:,:,1) = aperture(:,1)-aperture(:,1)';
     H(:,:,2) = aperture(:,2)-aperture(:,2)';

@@ -27,7 +27,8 @@ format short
    per_eps = p.Results.per_eps;
    %%%%%%%%%%%%%%%%%%%%%%%%%%
    
-   scene_HG = rho_HG(n_modes, scene);
+%   scene_HG = rho_HG(n_modes, scene);
+   scene_HG = rho_HG_GMM(n_modes, scene, aperture, U);
    
    if per_eps~=0
        

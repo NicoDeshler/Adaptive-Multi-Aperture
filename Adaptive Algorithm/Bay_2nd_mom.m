@@ -244,7 +244,11 @@ for i = 1:size(models,3)
         pri_up_temp(:,5:6) = sum( repmat( permute(like_temp,[1,3,2]), [size(sam,1), 2, 1]) ...
             .*( sam(:,2:3,:) -repmat(pri_up_temp(:,3:4),[1,1,n_sam_eff]) ).^2 ...
             /sum(like_temp),3);
-        
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % add randomness to the covariance to prevent position locking %%% NICO'S UPDATE%%%%
+        pri_up_temp(:,5:6) =  pri_up_temp(:,5:6) + rand(size(pri_up_temp,1),2)*1e-4/n_iter;
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     else
         
         pos = reshape(pri_up_temp(:,3:4), [2*size(pri_up_temp,1), 1]);

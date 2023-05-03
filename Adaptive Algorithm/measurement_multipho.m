@@ -1,4 +1,4 @@
-function measurement_multipho(scene, varargin)
+function scene_est = measurement_multipho(scene, varargin)
 
 %%%%%%%%%%%%%%%%% Parser %%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,6 +14,7 @@ function measurement_multipho(scene, varargin)
     defaultbri_known = 0;
     defaultproj_method = 'Personick';
     defaultper_eps = 0;
+    defaultsfilepath = 'out\est.mat'; % save filepath
     
     p = inputParser;
     
@@ -31,6 +32,7 @@ function measurement_multipho(scene, varargin)
     addOptional(p,'bri_known',defaultbri_known);
     addOptional(p,'proj_method',defaultproj_method);
     addOptional(p,'per_eps',defaultper_eps);
+    addOptional(p,'filepath',defaultsfilepath);
     
    
     parse(p, scene, varargin{:});
@@ -48,6 +50,7 @@ function measurement_multipho(scene, varargin)
     bri_known = p.Results.bri_known;        % 
     proj_method = p.Results.proj_method;    %
     per_eps = p.Results.per_eps;            % 
+    filepath = P.Results.filepath;          % save filepath
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -240,9 +243,11 @@ while n_pho_used < n_SLD_true
     clear dtp dm
 
     ii = ii + 1;
-    n_pho_used =n_pho_used + pho_now;
+    n_pho_used = n_pho_used + pho_now;
     
     toc;
+    
+    save(filepath,'scene','cand_check','likelihood_check')
     
 end
 
@@ -250,14 +255,7 @@ toc;
 
 
 % final model selection 
-    
-SLD_Est = model_final(cand,likelihood);
+scene_est = model_final(cand,likelihood);
+save(filepath,'scene','scene_est','cand_check','likelihood_check')
 
-cand = cand_check;
-
-filename = ['SLD_Est_',int2str(seed),'.mat'];
-
-save(filename, 'SLD_Est', 'seed', 'scene', 'cand');
-%{
-%}
 end

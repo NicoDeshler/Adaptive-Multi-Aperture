@@ -1,11 +1,10 @@
-function rho_HG = rho_HG(n_modes, scene)
-
+function rho_HG = rho_HG_GMM(n_modes, scene, aperture, U)
 %    The 2 assignements below are only necessary if the number of sources is unknown apriori
 %    scene = sortrows(scene, 'descend');
 %    scene = scene(1:nnz(scene(:,1)), :);
     
 %   HG_temp = HG_projection(n_modes, scene);
-    HG_modes = HG_projection_GMM(n_modes,scene);
+    HG_modes = HG_projection_GMM(n_modes, scene, aperture, U);
     %HG_temp = HG_projection_GMM(n_modes,scene);
 
     %HG_modes = [HG_temp.proj];

@@ -6,6 +6,8 @@ function L_out = SLD_delta_HG(n_modes, scene, varargin)
    defaultbri_flag = 1;
    defaultpos_var = [];
    defaultmul = 1;
+   defaultaperture = [0,0,1];       % aperture configuration [kx,ky,r]
+   defaultU = 1;                    % mixing matrix n_ap x n_ap
    
    p = inputParser;
 
@@ -16,6 +18,9 @@ function L_out = SLD_delta_HG(n_modes, scene, varargin)
    addOptional(p,'bri_flag',defaultbri_flag );
    addOptional(p,'pos_var',defaultpos_var );
    addOptional(p,'mul',defaultmul );
+   addOptional(p,'aperture',defaultaperture );
+   addOptional(p,'U',defaultU );
+  
    
    parse(p, n_modes, scene, varargin{:});
    
@@ -26,6 +31,8 @@ function L_out = SLD_delta_HG(n_modes, scene, varargin)
    bri_flag = p.Results.bri_flag;
    pos_var = p.Results.pos_var;
    mul = p.Results.mul;
+   aperture = p.Results.aperture;
+   U = p.Results.U;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -125,7 +132,7 @@ switch method
         scene(:,5:6) = max(scene(:,5:6), 1e-10);
         
         %rho = rho_HG_Bay(n_modes, scene, [], 0, 'bri_flag', bri_flag);
-        rho = rho_HG_Bay_GMM(n_modes, scene, [], 0, 'bri_flag', bri_flag);
+        rho = rho_HG_Bay_GMM(n_modes, scene, [], 0, 'bri_flag', bri_flag,'aperture',aperture,'U',U);
         
         [V_rho, D_rho] = eig(rho);
         
@@ -152,7 +159,7 @@ switch method
             temp(i) = 1;
             
             %gamma1 = rho_HG_Bay(n_modes, scene, temp, 1, 'bri_flag', bri_flag);
-            gamma1 = rho_HG_Bay_GMM(n_modes, scene, temp, 1, 'bri_flag', bri_flag);
+            gamma1 = rho_HG_Bay_GMM(n_modes, scene, temp, 1, 'bri_flag', bri_flag,'aperture',aperture,'U',U);
             
             L(:,:,i) =  V_rho'*gamma1*V_rho ...
                 ./(D1+D2 + (D1+D2 == 0) ).*(D1+D2 ~= 0);
@@ -201,7 +208,7 @@ switch method
         [V_H, D_H] = sortem(V_H, D_H);
         
         %Gamma1 = rho_HG_Bay(n_modes, scene, V_H(:,end), 1, 'bri_flag', bri_flag); % this is the density first-moment operator dotted with the projection vector Gamma_1 = ( h_vec dot Gamma_1 vec) which in this case is 
-        Gamma1 = rho_HG_Bay_GMM(n_modes, scene, V_H(:,end), 1, 'bri_flag', bri_flag); % this is the density first-moment operator dotted with the projection vector Gamma_1 = ( h_vec dot Gamma_1 vec) which in this case is 
+        Gamma1 = rho_HG_Bay_GMM(n_modes, scene, V_H(:,end), 1, 'bri_flag', bri_flag,'aperture',aperture,'U',U); % this is the density first-moment operator dotted with the projection vector Gamma_1 = ( h_vec dot Gamma_1 vec) which in this case is 
         
         L_out =  V_rho'*Gamma1*V_rho ...
             ./(D1+D2 + (D1+D2 == 0) ).*(D1+D2 ~= 0); % this is the joint parameter estimator B_gamma

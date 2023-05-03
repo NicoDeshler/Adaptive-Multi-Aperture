@@ -1,16 +1,15 @@
-function HG_proj = HG_projection_GMM(n_mode, est)
+function HG_proj = HG_projection_GMM(n_modes, est, aperture, U)
 % These are the expansion coeffs of the shifted PSF (to the source
 % positions in est) into the tensor product HG modes for a gaussian mixture
-% model of the aperture.
+% model of the aperture:
+%   aperture - sub aperture positions and radii
+%   U        - mixing unitary matrix 
 
 
-% aperture.mat must contain
-%   1) sub aperture positions and radii
-%   2) mixing unitary matrix 
-load 'aperture.mat';
+
 n_ap = size(aperture,1);
+[pj,qj,uj] = Indices_HG_GMMAperture(n_modes,n_ap); 
 %est = est(1:nnz(est(:,1)),:);
-
 
 % gpu setup
 %{
