@@ -17,6 +17,8 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     defaultsavepath = 'out\est.mat'; % save filepath
     defaultaperture = [0,0,1];
     defaultU = 1;
+    defaultdark_lambda = 0;
+    defaultphase_sigma = 0;
     
     p = inputParser;
     
@@ -37,6 +39,8 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     addOptional(p,'savepath',defaultsavepath);
     addOptional(p,'aperture',defaultaperture);
     addOptional(p,'U',defaultU);
+    addOptional(p,'dark_lambda',defaultdark_lambda);
+    addOptional(p,'phase_sigma',defaultphase_sigma);
     
    
     parse(p, scene, varargin{:});
@@ -57,6 +61,8 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     savepath = p.Results.savepath;          % save filepath
     aperture = p.Results.aperture;          % multiaperture configuration
     U = p.Results.U;                        % mixing matrix for multiple apertures
+    dark_lambda = p.Results.dark_lambda;    % Poisson mean of dark current photon noise
+    phase_sigma = p.Results.phase_sigma;    % stdev of gaussian phasing error for multiple apertures 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -177,6 +183,7 @@ mod_vote = zeros(n_model,1);
 
 cand_check{1} = cand; 
 
+U = U .* normrnd(0,phase_sigma,1,size(U,2)); % add phasing error to mixing matrix
 %%%%%%%%%%%%%%%%%%%%%%%% Above checked %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ii = 1; %period
@@ -226,6 +233,12 @@ while n_pho_used < n_SLD_true
     
     % MIST: modify the number of the photon
     pho_SLD = pho_gen(prob,  pho_now);
+    
+    % sample dark current photons
+    pho_dark = pho_gen_dark(size(L,1),dark_lambda);
+    
+    % collect all measured photons
+    pho_SLD = [pho_SLD, pho_dark];
 
     
 % Prior update
@@ -261,7 +274,7 @@ while n_pho_used < n_SLD_true
     
     toc;
     
-    save(savepath,'scene','cand_check','likelihood_check')
+    %save(savepath,'scene','cand_check','likelihood_check')
     
 end
 
