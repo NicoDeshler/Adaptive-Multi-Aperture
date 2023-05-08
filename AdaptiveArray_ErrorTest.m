@@ -10,7 +10,7 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     end
        
     % make the data storing object
-    DS = DSAdaptive();
+    DS = DSAdaptive_ErrorTest();
 
     % make the save directory
     mkdir(DS.save_dir)
@@ -52,9 +52,9 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    parpool(num_workers)
-    parfor t = 1:trials
-    %for t = 1:trials
+    %parpool(num_workers)
+    %parfor t = 1:trials
+    for t = 1:trials
 
         % generate a random scene
         centroid_aligned = 0;
