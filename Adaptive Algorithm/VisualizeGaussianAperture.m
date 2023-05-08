@@ -1,17 +1,24 @@
-function VisualizeGaussianAperture(aperture)
+function VisualizeGaussianAperture(aperture,varargin)
     % demonstrates the gaussian aperture configuration
-    % aperture : [kx,ky,sigma] 
+    % aperture : [kx,ky,r] 
+    addpath('Adaptive Algorithm/circles_v1.1.1')
+    
+    p = inputParser;    
+    addOptional(p,'R_eff',defaultseed);
+
     
     n_ap = size(aperture,1);
     kx  = aperture(:,1);
     ky  = aperture(:,2);
-    sig = aperture(:,3);
+    r = aperture(:,3);
+    sig = r/3;
     
-    % get max extent of the aperture for plotting
-    r = 3*sig;
-    R = sqrt(sum(([kx,ky]- mean([kx,ky],1)).^2,2));
-    R_eff = max(R+r);
-    
+   % get max extent of the aperture for plotting    
+    if n_ap>1
+        R = sqrt(sum(([kx,ky]- mean([kx,ky],1)).^2,2));
+        R_eff = max(R+r);
+    else
+        
     % aperture space over which to plot
     [Kx,Ky] = meshgrid(linspace(-R_eff,R_eff,1001));
     
@@ -33,14 +40,12 @@ function VisualizeGaussianAperture(aperture)
     gauss_eff = reshape(mvnpdf([Kx(:),Ky(:)],mean([kx,ky],1),eye(2)*sig_eff^2),size(Kx));
     %levels = mvnpdf([zeros(5,1),linspace(0,1,5).'*sig_eff],mean([kx,ky],1),eye(2)*sig_eff^2);
     levels = linspace(mvnpdf([0,0],mean([kx,ky],1),eye(2)*sig_eff^2),mvnpdf([0,sqrt(2)*sig_eff],mean([kx,ky],1),eye(2)*sig_eff^2),20);
-       
-    % plot
-    figure
+    
     
     % plot the gaussian multi-aperture with effective gaussian contours and
     % the sigma_eff edge.
     hold on
-    imagesc([min(Kx(:)),max(Kx(:))],[min(Ky(:)),max(Ky(:))],gauss_aperture) % plot contour of 
+    imagesc([min(Kx(:)),max(Kx(:))],[min(Ky(:)),max(Ky(:))],gauss_aperture) 
     %contour(Kx,Ky,gauss_eff,levels,'red')                                   % plot contour of effective aperture standard deviation
     circles(mean(kx),mean(ky),sig_eff,'facecolor','none','linewidth',2)
     circles(kx,ky,r,'facecolor','none','edgecolor','green','linewidth',1)
@@ -48,8 +53,8 @@ function VisualizeGaussianAperture(aperture)
     
     % labelling
     axis 'square'
-    xlabel('$k_x \, [\tilde{\sigma}]$','interpreter','latex')
-    ylabel('$k_y \, [\tilde{\sigma}]$','interpreter','latex')
+    xlabel('$k_x \, [m]$','interpreter','latex')
+    ylabel('$k_y \, [m]$','interpreter','latex')
     title('Gaussian Multi-Aperture')
     xlim([min(Kx(:)),max(Kx(:))])
     ylim([min(Ky(:)),max(Ky(:))])

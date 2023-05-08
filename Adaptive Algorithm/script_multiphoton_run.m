@@ -1,6 +1,7 @@
 clc
 addpath('MultiAperture/');
 addpath('MultiAperture/circles_v1.1.1');
+addpath('C:\Users\nicod\Documents\Academics\Graduate School\I2SL Research\Projects\Multi-Aperture Quantum Imaging\Adaptive-Multi-Aperture\Multi-Aperture')
 
 
 % load test scene
@@ -14,36 +15,43 @@ ylabel('y')
 %}
 
 % ---------------------- aperture --------------------------------- 
-sigma = 1;                        % single sub-aperture stdev
-r = 3*sigma;                        % max radius of sub-aperture locations
+tilde_sigma = 1;                          % single sub-aperture stdev
+r = 3*tilde_sigma;                        % max radius of sub-aperture locations
 
-ap1 = [0,0,sigma];
-ap2 = [Polygon(2,pi/2,'separation',2*r),sigma*ones(2,1)];
-ap3 = [Polygon(3,0,'separation',2*r),sigma*ones(3,1)];
-ap4 = [Polygon(4,0,'separation',2*r),sigma*ones(4,1)];
-golay9 = [Golay9(6*r),sigma*ones(9,1)];
+ap1 = [0,0,tilde_sigma];
+ap2 = [Polygon(2,pi/2,'radius',(2/sqrt(3))*r ),tilde_sigma*ones(2,1)];
+ap3 = [Polygon(3,0,'separation',2*r),tilde_sigma*ones(3,1)];
+ap4 = [Polygon(4,0,'separation',2*r),tilde_sigma*ones(4,1)];
+golay9 = [Golay9(6*r),tilde_sigma*ones(9,1)];
+
+
+
 
 % set the aperture
-aperture = ap3;
+aperture = ap2;
 ap_num = size(aperture,1);
 aper_coords = aperture(:,1:2);
 aper_sigs = aperture(:,3);
 
 % get effective aperture standard deviation
 if ap_num == 1
-    sigma_eff = sigma;
+    tilde_sigma_eff = tilde_sigma;
 else
     R = sqrt(sum((aper_coords - mean(aper_coords,1)).^2,2));
-    sigma_eff = max(R+3*aper_sigs);     % effective gaussian aperture stdev    
+    tilde_sigma_eff = max(R+3*aper_sigs);     % effective gaussian aperture stdev    
 end
-psf_sig = 1/(2*sigma_eff);          % rl = FWHM of gaussian
-rl = (2*sqrt(2*log(2))) * psf_sig;  % gaussian aperture rayleigh length [length units]
+sigma = 1/2/tilde_sigma;
+sigma_eff = 1/2/tilde_sigma_eff;          % rl = FWHM of gaussian
+rl = (2*sqrt(2*log(2))) * sigma_eff;  % gaussian aperture rayleigh length [length units]
 
 
 % rescale aperture units to be fractional units of the sub-aperture standard deviation.
-aperture = aperture / sigma; % this step is critical - the reference unit in Kwan's code is the sigma of an individual sub-aperture
+aperture = aperture / tilde_sigma; % this step is critical - the reference unit in Kwan's code is the sigma of an individual sub-aperture
 
 
+% 
+aperture = aperture * sigma;
+scene = scene * sigma/sigma_eff; 
 
 % visualize the aperture
 %VisualizeGaussianAperture(aperture)
@@ -53,7 +61,9 @@ aperture = aperture / sigma; % this step is critical - the reference unit in Kwa
 load('test_scene.mat')
 scene = scene(:,:,1);
 src_coords = scene(:,2:3)...
-              * sigma / sigma_eff;
+              * tilde_sigma / tilde_sigma_eff;
+          
+src_coords = src_coords* 31.1440/26.5;
 
 
 %{
@@ -98,7 +108,7 @@ N_modes = ap_num*(max_order)*(max_order+1)/2;           % number of local apertu
 [pj,qj,uj] = Indices_HG_GMMAperture(max_order,ap_num);  % vector of linear index map for each mode
 U = dftmtx(ap_num)/sqrt(ap_num);                        % unitary matrix
 
-save('aperture.mat','aperture','U','n_HG_modes','N_modes','pj','qj','uj','psf_sig')
+%save('aperture.mat','aperture','U','n_HG_modes','N_modes','pj','qj','uj','psf_sig')
 
 
 measurement_multipho(scene, ...
@@ -110,7 +120,9 @@ measurement_multipho(scene, ...
                      'bri_known',1,...
                      'proj_method','Personick',...
                      'per_eps', 0,...% 0<=per_eps<=1; HG 0 mode background
-                     'n_HG_modes', max_order ...
+                     'n_HG_modes', max_order, ...
+                     'aperture',aperture,...
+                     'U',U...
                     ); 
 %{
  measurement_multipho(scene(:,:,1), ...

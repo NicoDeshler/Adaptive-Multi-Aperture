@@ -1,4 +1,4 @@
-function scene_est = measurement_multipho(scene, varargin)
+function [est, cand_check] = measurement_multipho(scene, varargin)
 
 %%%%%%%%%%%%%%%%% Parser %%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,7 +14,9 @@ function scene_est = measurement_multipho(scene, varargin)
     defaultbri_known = 0;
     defaultproj_method = 'Personick';
     defaultper_eps = 0;
-    defaultsfilepath = 'out\est.mat'; % save filepath
+    defaultsavepath = 'out\est.mat'; % save filepath
+    defaultaperture = [0,0,1];
+    defaultU = 1;
     
     p = inputParser;
     
@@ -32,7 +34,9 @@ function scene_est = measurement_multipho(scene, varargin)
     addOptional(p,'bri_known',defaultbri_known);
     addOptional(p,'proj_method',defaultproj_method);
     addOptional(p,'per_eps',defaultper_eps);
-    addOptional(p,'filepath',defaultsfilepath);
+    addOptional(p,'savepath',defaultsavepath);
+    addOptional(p,'aperture',defaultaperture);
+    addOptional(p,'U',defaultU);
     
    
     parse(p, scene, varargin{:});
@@ -50,7 +54,9 @@ function scene_est = measurement_multipho(scene, varargin)
     bri_known = p.Results.bri_known;        % 
     proj_method = p.Results.proj_method;    %
     per_eps = p.Results.per_eps;            % 
-    filepath = P.Results.filepath;          % save filepath
+    savepath = p.Results.savepath;          % save filepath
+    aperture = p.Results.aperture;          % multiaperture configuration
+    U = p.Results.U;                        % mixing matrix for multiple apertures
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -206,11 +212,17 @@ while n_pho_used < n_SLD_true
     
     L = SLD_delta_HG(n_HG_modes, tp, ...
                      'method', proj_method, ..., ...
-                     'bri_flag', 0);
+                     'bri_flag', 0,...
+                     'aperture',aperture,...
+                     'U',U...
+                     );
     
     % Probability Generation
     prob = prob_gen_2nd_mom(scene, L, ...
-                            'n_modes', n_HG_modes);
+                            'n_modes', n_HG_modes,...
+                            'aperture', aperture,...
+                            'U',U);
+                        
     
     % MIST: modify the number of the photon
     pho_SLD = pho_gen(prob,  pho_now);
@@ -223,7 +235,9 @@ while n_pho_used < n_SLD_true
         temp = Bay_2nd_mom(pho_SLD, cand, L, n_HG_modes, n_sam , n_max , ii,...
                           'posCov', [],...
                           'bri_known', bri_known, ... 
-                          'cv_rate', [1,1,50]);
+                          'cv_rate', [1,1,50],...
+                          'aperture',aperture,...
+                          'U',U);
                 
                 
         
@@ -247,15 +261,14 @@ while n_pho_used < n_SLD_true
     
     toc;
     
-    save(filepath,'scene','cand_check','likelihood_check')
+    save(savepath,'scene','cand_check','likelihood_check')
     
 end
 
 toc;
 
-
 % final model selection 
-scene_est = model_final(cand,likelihood);
-save(filepath,'scene','scene_est','cand_check','likelihood_check')
+est = model_final(cand,likelihood);
+%save(savepath,'scene','est','cand_check','likelihood_check')
 
 end

@@ -6,12 +6,15 @@ FWHM = 2.354820;
 %seed = 12;
 %rng(seed);
 
+
 defaultmin_sp = FWHM/2*0.02;
 defaultposCov = [];
 defaultmax_r = 0.35;
 defaultHG_flag = 0;
 defaultcv_rate = [1,1,1];
 defaultbri_known = 0;
+defaultaperture = [0,0,1];
+defaultU = 1;
 
 p = inputParser;
 
@@ -29,6 +32,9 @@ addOptional(p,'max_r',defaultmax_r);
 addOptional(p,'HG_flag',defaultHG_flag)
 addOptional(p,'cv_rate',defaultcv_rate);
 addOptional(p,'bri_known',defaultbri_known);
+addOptional(p,'aperture',defaultaperture);
+addOptional(p,'U',defaultU);
+
 
 parse(p, pho_SLD, models, L, n_modes, n_sam, n_max, varargin{:});
 
@@ -45,6 +51,8 @@ max_r = p.Results.max_r;
 HG_flag = p.Results.HG_flag;
 cv_rate = p.Results.cv_rate;
 bri_known = p.Results.bri_known;
+aperture = p.Results.aperture;
+U = p.Results.U;
 
 perb_prob = 1;
 
@@ -182,7 +190,7 @@ for i = 1:size(models,3)
     
     
     % calculation of log likelihood
-    log_like = log_likelihood(n_modes, sam, V_L, n);
+    log_like = log_likelihood(n_modes, sam, V_L, n, aperture, U);
     log_like = real( log_like + NN );
     
     % Rescaling the likelihood
@@ -311,7 +319,7 @@ for i = 1:size(models,3)
         
     end
     
-    post_log_like = log_likelihood(n_modes, post_sam, V_L, n);
+    post_log_like = log_likelihood(n_modes, post_sam, V_L, n, aperture, U);
     
     post_log_like = post_log_like + NN;
     

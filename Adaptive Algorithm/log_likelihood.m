@@ -1,4 +1,4 @@
-function log_like = log_likelihood(n_modes, sam, V_L, n)
+function log_like = log_likelihood(n_modes, sam, V_L, n, aperture, U)
   
     % gpu setup
     %{
@@ -11,7 +11,8 @@ function log_like = log_likelihood(n_modes, sam, V_L, n)
 
 
     % compute density operator for each sample
-    rho_sam = rho_HG(n_modes, sam);
+    %rho_sam = rho_HG(n_modes, sam);
+    rho_sam = rho_HG_GMM(n_modes,sam,aperture,U);
     
     % get modal probabilities for each sample given the measurement matrix
     % V_L

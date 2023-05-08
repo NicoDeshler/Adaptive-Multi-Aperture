@@ -132,7 +132,10 @@ switch method
         scene(:,5:6) = max(scene(:,5:6), 1e-10);
         
         %rho = rho_HG_Bay(n_modes, scene, [], 0, 'bri_flag', bri_flag);
-        rho = rho_HG_Bay_GMM(n_modes, scene, [], 0, 'bri_flag', bri_flag,'aperture',aperture,'U',U);
+        rho = rho_HG_Bay_GMM(n_modes, scene, [], 0,...
+                            'bri_flag', bri_flag,...
+                            'aperture',aperture,...
+                            'U',U);
         
         [V_rho, D_rho] = eig(rho);
         

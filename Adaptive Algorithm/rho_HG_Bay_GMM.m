@@ -37,6 +37,7 @@ function rho_HG = rho_HG_Bay_GMM(n_modes, scene, V, Mom, varargin)
     H(:,:,1) = aperture(:,1)-aperture(:,1)';
     H(:,:,2) = aperture(:,2)-aperture(:,2)';
     
+    
     [pj,qj,uj] = Indices_HG_GMMAperture(n_modes,n_ap);
     
     %N_modes = 3*n_modes*(3*n_modes+1)/2;

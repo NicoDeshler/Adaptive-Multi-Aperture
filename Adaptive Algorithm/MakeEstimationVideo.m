@@ -6,11 +6,11 @@ set(groot,'defaulttextinterpreter','latex');
 set(groot,'defaultLegendInterpreter','latex');
 
 % load in the reconstruction
-load 'SLD_Est_3ap-4src_v2.mat'
+load 'out/est.mat'
 
 delta_min = min(pdist(scene(:,2:3)));
 
-v = VideoWriter('SLD_Est_3ap_4src_v2','Uncompressed AVI');
+v = VideoWriter('SLD_Est_2ap_4src_v2','Uncompressed AVI');
 v.FrameRate = 5;
 open(v)
 
@@ -30,7 +30,7 @@ for i = 1:numel(cand)
     
     xlabel('$x / \sigma$')
     ylabel('$y / \sigma$')
-    title({'3-Aperture Adaptive Imaging',['$\Delta_{min} = \sigma / ',sprintf('%0.3g',1/delta_min),'$']})
+    title({'2-Aperture Adaptive Imaging',['$\Delta_{min} = \sigma / ',sprintf('%0.3g',1/delta_min),'$']})
     
     legend({'Scene','Estimate'})
     frame = getframe(gcf);

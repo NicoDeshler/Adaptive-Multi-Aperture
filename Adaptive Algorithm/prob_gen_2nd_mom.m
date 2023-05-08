@@ -7,6 +7,8 @@ format short
    defaultn_modes = 2;
    defaultHG_flag = 0;
    defaultper_eps = 0;
+   defaultaperture = [0,0,1];
+   defaultU = 1;
    
    p = inputParser;
 
@@ -16,6 +18,8 @@ format short
    addOptional(p,'n_modes',defaultn_modes);
    addOptional(p,'HG_flag',defaultHG_flag);
    addOptional(p,'per_eps',defaultper_eps);
+   addOptional(p,'aperture',defaultaperture);
+   addOptional(p,'U',defaultU);
    
    parse(p, scene, L, varargin{:});
    
@@ -25,6 +29,8 @@ format short
    n_modes = p.Results.n_modes;
    HG_flag = p.Results.HG_flag;
    per_eps = p.Results.per_eps;
+   aperture = p.Results.aperture;
+   U = p.Results.U;
    %%%%%%%%%%%%%%%%%%%%%%%%%%
    
 %   scene_HG = rho_HG(n_modes, scene);
