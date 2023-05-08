@@ -28,11 +28,11 @@ aperture_names = {'Monolith','Ring-3','Ring-5','Ring-7','Golay-5','Golay-7'};
 % Datastore variables
 DS.A = A;
 DS.R_max = R_max;
-DS.max_order = 5;
+DS.max_order = 4;
 DS.trials = 50;        % trials per configuration
 DS.min_sep_frac = 2.^linspace(-6,-3,4);
 DS.num_src = 3:6;
-DS.num_pho = VisualMagnitude_to_PhotonFlux(10:2:20)*A; 
+DS.num_pho = VisualMagnitude_to_PhotonFlux(fliplr(10:3:19))*A; 
 DS.apertures = apertures;
 DS.aperture_names = aperture_names;
 DS.save_dir = 'out';
