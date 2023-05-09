@@ -52,12 +52,12 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    %parpool(num_workers)
-    %parfor t = 1:trials
-    for t = 1:trials
+    parpool(num_workers)
+    parfor t = 1:trials
+    %for t = 1:trials
 
         % generate a random scene
-        centroid_aligned = 0;
+        centroid_aligned = 1;
         src_brites = ones(num_src,1)/num_src;
         src_coords = genMinDistConstellation(src_brites, min_sep_frac, centroid_aligned);
         
