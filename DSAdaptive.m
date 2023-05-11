@@ -15,14 +15,20 @@ tilde_sigma = @(n) r(n)/3;  % sub-aperture standard deviation for gaussian sub-a
 % the apertures
 mono = [0,0,r(1)];
 ring3 = [Polygon(3,0,'radius',R_max-r(3)),r(3)*ones(3,1)];
-ring5 = [Polygon(5,0,'radius',R_max-r(5)),r(5)*ones(5,1)];
+ring4 = [Polygon(4,0,'radius',R_max-r(4)),r(4)*ones(4,1)];
+ring6 = [Polygon(6,0,'radius',R_max-r(6)),r(6)*ones(6,1)];
 ring7 = [Polygon(7,0,'radius',R_max-r(7)),r(7)*ones(7,1)];
-golay5 = [Golay5(R_max-r(5)),r(5)*ones(5,1)];
+ring9 = [Polygon(9,0,'radius',R_max-r(9)),r(9)*ones(9,1)];
+golay4 = [Golay4(R_max-r(4)),r(4)*ones(4,1)];
+golay6 = [Golay6(R_max-r(6)),r(6)*ones(6,1)];
 golay7 = [Golay7(R_max-r(7)),r(7)*ones(7,1)];
+golay9 = [Golay9(R_max-r(9)),r(9)*ones(9,1)];
 
 % collect all the apertures
-apertures = {mono,ring3,ring5,ring7,golay5,golay7};
-aperture_names = {'Monolith','Ring-3','Ring-5','Ring-7','Golay-5','Golay-7'};
+apertures = {ring3,ring4,ring6,ring7,ring9,mono,golay4,golay6,golay7,golay9};
+aperture_names = {'Ring-3','Ring-4','Ring-6','Ring-7','Ring-9','Monolith','Golay-4','Golay-6','Golay-7','Golay-9'};
+%apertures = {ring3,mono,ring4,golay4,ring6,golay6,ring7,golay7,ring9,golay9};
+%aperture_names = {'Ring-3','Monolith','Ring-4','Golay-4','Ring-6','Golay-6','Ring-7','Golay-7','Ring-9','Golay-9'};
 
 
 % Datastore variables

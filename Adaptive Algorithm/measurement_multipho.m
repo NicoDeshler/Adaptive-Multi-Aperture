@@ -186,7 +186,7 @@ mod_vote = zeros(n_model,1);
 
 cand_check{1} = cand; 
 
-U = U .* normrnd(0,phase_sigma,1,size(U,2)); % add phasing error to mixing matrix
+U = U .* exp(1i*normrnd(0,phase_sigma,1,size(U,2))); % add piston phasing error to mixing matrix
 %%%%%%%%%%%%%%%%%%%%%%%% Above checked %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ii = 1; %period

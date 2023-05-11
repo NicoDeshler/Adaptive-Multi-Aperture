@@ -13,12 +13,7 @@ r = @(n) sqrt(A/n/pi); % sub-apeture radius          [length]
 tilde_sigma = @(n) r(n)/3;  % sub-aperture standard deviation for gaussian sub-apertures [length]
 
 % the apertures
-mono = [0,0,r(1)];
 ring3 = [Polygon(3,0,'radius',R_max-r(3)),r(3)*ones(3,1)];
-ring5 = [Polygon(5,0,'radius',R_max-r(5)),r(5)*ones(5,1)];
-ring7 = [Polygon(7,0,'radius',R_max-r(7)),r(7)*ones(7,1)];
-golay5 = [Golay5(R_max-r(5)),r(5)*ones(5,1)];
-golay7 = [Golay7(R_max-r(7)),r(7)*ones(7,1)];
 
 % collect all the apertures
 %apertures = {mono,ring3,ring5,ring7,golay5,golay7};
@@ -30,12 +25,12 @@ aperture_names = {'Ring-3'};
 % Datastore variables
 DS.A = A;
 DS.R_max = R_max;
-DS.max_order = 4;
+DS.max_order = 5;
 DS.trials = 50;        % trials per configuration
 %DS.min_sep_frac = 2.^linspace(-6,-3,4);
 DS.min_sep_frac = 1/4;
 %DS.num_src = 3:6;
-DS.num_src = 5;
+DS.num_src = 3;
 %DS.num_pho = VisualMagnitude_to_PhotonFlux(fliplr(10:3:19))*A; 
 DS.num_pho = VisualMagnitude_to_PhotonFlux(13)*A;
 DS.dark_pho_lambda = [0,50:250:1500];

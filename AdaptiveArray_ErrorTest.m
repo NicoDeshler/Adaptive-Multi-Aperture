@@ -1,8 +1,9 @@
-function AdaptiveArray_ErrorTest(array_id,num_workers)
+%function AdaptiveArray_ErrorTest(array_id,num_workers)
+    
+    array_id = 1;
 
     % add directories with all algorithm functions
     addpath('Adaptive Algorithm/')
-    addpath('Multi-Aperture/')
 
     % get the job array id
     if ischar(array_id)
@@ -39,22 +40,37 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     sigma = 1/2/tilde_sigma;             % stdev of sub-aperture gaussian PSF
     sigma_eff = 1/2/tilde_sigma_eff;     % effective stdev of effective gaussian PSF
     
-    % make units of the aperture coordinates equal to [sigma^-1] to
-    % correspond to the fact that Kwan defines the imag-space coordinates
-    % to be [sigma].
-    aperture = aperture .* sigma;   
+    % make units of the aperture coordinates equal to [(2 sigma)^-1] to
+    % correspond to the fact that Kwan defines the image-space coordinates
+    % to be [x/(2 sigma)].
+    aperture = aperture ./ tilde_sigma;   
     % make the min_sep_frac of the effective rayleigh length scaled in
     % terms of the minimum separation fraction in terms of the sub-aperture
     % rayleigh length
+    
+    
     min_sep_frac = min_sep_frac * sigma_eff / sigma;
+    
+
+    %------------ photons ---------------- %
+    % total number of photons available
+    n_pho = num_src*num_pho;
+
+    % number of photons per bayesian iteration
+    n_pho_group = round(n_pho/5);
+
+    % number of photons for direct detection pre-estimate
+    n_imag_mu = 5000;
+    
+    
     
     
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    parpool(num_workers)
-    parfor t = 1:trials
-    %for t = 1:trials
+    %parpool(num_workers)
+    %parfor t = 1:trials
+    for t = 1:trials
 
         % generate a random scene
         centroid_aligned = 1;
@@ -64,16 +80,6 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
         % scene [source brightnesses, source coordinates (in fractional rayleigh units)]
         scene = [src_brites, src_coords];
         
-        
-        %%%%%%%%%%%  PHOTONS  %%%%%%%%%%%%%
-        % total number of photons available
-        n_pho = num_src*num_pho;
-        
-        % number of photons per bayesian iteration
-        n_pho_group = n_pho/50;
-
-        % number of photons for direct detection pre-estimate
-        n_imag_mu = 5000;
                 
         % Run Adaptive Bayesian Multi-Parameter Estimation Algorithm
         [est_scene,est_trace] = measurement_multipho(scene, ...
@@ -95,12 +101,11 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
         
                         
         % parameter estimates
-        est_brites = est_scene(:,1:2);
+        est_brites = est_scene(:,1);
         est_coords = est_scene(:,2:3);
               
         % compute localization error
-        err = LocalizationError(src_coords, est_coords); 
-        err = err / min_sep_frac;   % normalize localization error with respect to minimum separation
+        err = LocalizationError(src_coords, est_coords,1); 
         
         % data stucture for configuration
         cfg_data(t).n_pho = n_pho;
@@ -120,4 +125,4 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     save(fullfile(DS.save_dir,fname),'cfg_id','DS')
     
 
-end
+%end

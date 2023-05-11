@@ -1,4 +1,4 @@
-function err = LocalizationError(xy_src,xy_est)
+function err = LocalizationError(xy_src,xy_est,frac_flag)
     % Computes the average localization error per source for a given
     % estimate of the constellation
     
@@ -24,6 +24,11 @@ function err = LocalizationError(xy_src,xy_est)
        
     % get the average error per source by dividing the number of sources.
     err = err / num_sources;
+    
+    if frac_flag
+        err = err / min(pdist(xy_src));
+    end
+    
     
 end
 

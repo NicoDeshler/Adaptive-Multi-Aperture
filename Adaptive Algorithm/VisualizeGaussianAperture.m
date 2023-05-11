@@ -1,24 +1,17 @@
-function VisualizeGaussianAperture(aperture,varargin)
+function VisualizeGaussianAperture(aperture,R_eff)
     % demonstrates the gaussian aperture configuration
     % aperture : [kx,ky,r] 
+    % R_eff : effective aperture radius over which to plot results
     addpath('Adaptive Algorithm/circles_v1.1.1')
     
-    p = inputParser;    
-    addOptional(p,'R_eff',defaultseed);
-
+    
     
     n_ap = size(aperture,1);
     kx  = aperture(:,1);
     ky  = aperture(:,2);
     r = aperture(:,3);
     sig = r/3;
-    
-   % get max extent of the aperture for plotting    
-    if n_ap>1
-        R = sqrt(sum(([kx,ky]- mean([kx,ky],1)).^2,2));
-        R_eff = max(R+r);
-    else
-        
+
     % aperture space over which to plot
     [Kx,Ky] = meshgrid(linspace(-R_eff,R_eff,1001));
     
@@ -58,7 +51,7 @@ function VisualizeGaussianAperture(aperture,varargin)
     title('Gaussian Multi-Aperture')
     xlim([min(Kx(:)),max(Kx(:))])
     ylim([min(Ky(:)),max(Ky(:))])
-    legend({'$\tilde{\sigma}_{eff}$','$r = 3\tilde{\sigma}$'},'interpreter','latex')
+    %legend({'$\tilde{\sigma}_{eff}$','$r = 3\tilde{\sigma}$'},'interpreter','latex')
     
     
 end
