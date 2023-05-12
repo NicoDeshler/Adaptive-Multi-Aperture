@@ -1,4 +1,4 @@
-%function AdaptiveArray_ErrorTest(array_id,num_workers)
+function AdaptiveArray_ErrorTest(array_id,num_workers)
     
     array_id = 1;
 
@@ -127,4 +127,4 @@
     save(fullfile(DS.save_dir,fname),'cfg_id','DS')
     
 
-%end
+end
