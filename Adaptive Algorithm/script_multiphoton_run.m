@@ -28,7 +28,7 @@ golay9 = [Golay9(6*r),tilde_sigma*ones(9,1)];
 
 
 % set the aperture
-aperture = ap2;
+aperture = ap3;
 ap_num = size(aperture,1);
 aper_coords = aperture(:,1:2);
 aper_sigs = aperture(:,3);
@@ -49,10 +49,6 @@ rl = (2*sqrt(2*log(2))) * sigma_eff;  % gaussian aperture rayleigh length [lengt
 aperture = aperture / tilde_sigma; % this step is critical - the reference unit in Kwan's code is the sigma of an individual sub-aperture
 
 
-% 
-aperture = aperture * sigma;
-scene = scene * sigma/sigma_eff; 
-
 % visualize the aperture
 %VisualizeGaussianAperture(aperture)
 
@@ -63,7 +59,7 @@ scene = scene(:,:,1);
 src_coords = scene(:,2:3)...
               * tilde_sigma / tilde_sigma_eff;
           
-src_coords = src_coords* 31.1440/26.5;
+src_coords = src_coords;
 
 
 %{

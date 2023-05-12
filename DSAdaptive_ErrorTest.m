@@ -4,7 +4,7 @@ function DS = DSAdaptive_ErrorTest()
 %%%%%%%%%%  APERTURES %%%%%%%%%%%%%%
 
 % constraint parameters
-A = 7;             % area budget alotted for each aperture configuration [length^2]
+A = pi*10^2;            % area budget alotted for each aperture configuration [length^2]
 D_max = 20;        % multi-aperture max diameter [length]
 R_max = D_max/2;   % multi-aperture max radius   [length]
 
@@ -14,11 +14,12 @@ tilde_sigma = @(n) r(n)/3;  % sub-aperture standard deviation for gaussian sub-a
 
 % the apertures
 ring3 = [Polygon(3,0,'radius',R_max-r(3)),r(3)*ones(3,1)];
+mono = [0,0,r(1)];
 
 % collect all the apertures
 %apertures = {mono,ring3,ring5,ring7,golay5,golay7};
 %aperture_names = {'Monolith','Ring-3','Ring-5','Ring-7','Golay-5','Golay-7'};
-apertures = {ring3};
+apertures = {mono};
 aperture_names = {'Ring-3'};
 
 

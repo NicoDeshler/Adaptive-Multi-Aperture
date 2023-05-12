@@ -165,7 +165,7 @@ cand = prior_info(cand, scene, ...
 
 if n_pri
     
-    cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization _NICO EDIT          
+    %cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization _NICO EDIT          
     
     posCov_temp = posCov;
     posCov{1} = posCov_temp{end}; % need to put n_s = n_max

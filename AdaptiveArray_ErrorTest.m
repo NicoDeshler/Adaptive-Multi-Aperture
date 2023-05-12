@@ -57,12 +57,10 @@
     n_pho = num_src*num_pho;
 
     % number of photons per bayesian iteration
-    n_pho_group = round(n_pho/5);
+    n_pho_group = round(n_pho/50);
 
     % number of photons for direct detection pre-estimate
     n_imag_mu = 5000;
-    
-    
     
     
     % ------------ Loop Through Trials ------------------ %
@@ -71,7 +69,10 @@
     %parpool(num_workers)
     %parfor t = 1:trials
     for t = 1:trials
-
+        
+        % set seed
+        seed = (array_id-1) * trials + t;
+        
         % generate a random scene
         centroid_aligned = 1;
         src_brites = ones(num_src,1)/num_src;
@@ -96,7 +97,8 @@
                              'aperture', aperture, ...
                              'U',U, ...
                              'dark_lambda', dark_pho_lambda, ...
-                             'phase_sigma', phase_err_sigma ...
+                             'phase_sigma', phase_err_sigma, ...
+                             'seed',seed...
                             ); 
         
                         

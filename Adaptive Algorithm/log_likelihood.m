@@ -44,9 +44,12 @@ function log_like = log_likelihood(n_modes, sam, V_L, n, aperture, U)
         prob_conj_batch = 1 - sum(prob_sam_batch,2);
         prob_sam(1,:,k:(k+max_batch_size-1)) = cat(2,prob_conj_batch.*double(prob_conj_batch>0),prob_sam_batch);
         
+        % remove negative probabilities
+        prob_sam(prob_sam < 0) = 0;
+        
+        % increment batch index
         k = k + max_batch_size;
     end
-    
     
     %{
     % compute density operator for each sample
