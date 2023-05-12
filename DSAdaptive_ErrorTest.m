@@ -19,8 +19,8 @@ mono = [0,0,r(1)];
 % collect all the apertures
 %apertures = {mono,ring3,ring5,ring7,golay5,golay7};
 %aperture_names = {'Monolith','Ring-3','Ring-5','Ring-7','Golay-5','Golay-7'};
-apertures = {ring3};
-aperture_names = {'Ring-3'};
+apertures = {mono};
+aperture_names = {'mono'};
 
 
 % Datastore variables
@@ -31,14 +31,15 @@ DS.trials = 50;        % trials per configuration
 %DS.min_sep_frac = 2.^linspace(-6,-3,4);
 DS.min_sep_frac = 1/4;
 %DS.num_src = 3:6;
-DS.num_src = 4;
+DS.num_src = 3;
 %DS.num_pho = VisualMagnitude_to_PhotonFlux(fliplr(10:3:19))*A; 
 DS.num_pho = VisualMagnitude_to_PhotonFlux(13)*A;
 DS.dark_pho_lambda = [0,50:250:1500];
-DS.phase_err_sigma = [0,10.^linspace(-3,0,4) * 2*pi]; % [rads]
+%DS.phase_err_sigma = [0,10.^linspace(-3,0,4) * 2*pi]; % [rads]
+DS.phase_err_sigma = [0]; % [rads]
 DS.apertures = apertures;
 DS.aperture_names = aperture_names;
-DS.save_dir = 'dark_current_centroid_aligned';
+DS.save_dir = 'dark_current_centroid_aligned_monolith_3sources';
 DS.cfg_size = [numel(DS.apertures),numel(DS.num_src),numel(DS.min_sep_frac),numel(DS.num_pho),numel(DS.dark_pho_lambda),numel(DS.phase_err_sigma)]; % the dimensionality of the parameter space range
 DS.data = cell(DS.cfg_size);
 

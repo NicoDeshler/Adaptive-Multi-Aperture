@@ -55,6 +55,7 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
 
     % number of photons per bayesian iteration
     n_pho_group = round(n_pho/50);
+    n_pho_group = 2e4;
     
     % number of photons for direct detection pre-estimate
     n_imag_mu = 0;
@@ -63,9 +64,9 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    parpool(num_workers)
-    parfor t = 1:trials
-    %for t = 1:trials
+    %parpool(num_workers)
+    %parfor t = 1:trials
+    for t = 1:trials
         
         % set seed
         seed = (array_id-1) * trials + t;
