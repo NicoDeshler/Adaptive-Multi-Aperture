@@ -7,7 +7,8 @@ FWHM = 2.354820;
 %rng(seed);
 
 
-defaultmin_sp = FWHM/2*0.02;
+%defaultmin_sp = FWHM/2*0.02;
+defaultmin_sp = 0;
 defaultposCov = [];
 defaultmax_r = 0.35;
 defaultHG_flag = 0;
@@ -255,7 +256,7 @@ for i = 1:size(models,3)
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % add randomness to the covariance to prevent position locking %%% NICO'S UPDATE%%%%
-        pri_up_temp(:,5:6) =  pri_up_temp(:,5:6) + rand(size(pri_up_temp,1),2)*1e-4/n_iter;
+        pri_up_temp(:,5:6) =  pri_up_temp(:,5:6) + rand(size(pri_up_temp,1),2)*1e-6/n_iter;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     else
         

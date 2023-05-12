@@ -58,9 +58,9 @@
 
     % number of photons per bayesian iteration
     n_pho_group = round(n_pho/50);
-
+    
     % number of photons for direct detection pre-estimate
-    n_imag_mu = 5000;
+    n_imag_mu = 0;
     
     
     % ------------ Loop Through Trials ------------------ %

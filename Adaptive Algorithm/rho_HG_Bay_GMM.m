@@ -71,7 +71,8 @@ function rho_HG = rho_HG_Bay_GMM(n_modes, scene, V, Mom, varargin)
     %bar_mu  = psf_sig * scene(:,3:4);
     %bar_sig = psf_sig * scene(:,5:6);
     bar_mu  = scene(:,3:4);
-    bar_sig = scene(:,5:6);
+    bar_sig = sqrt(scene(:,5:6));
+    %bar_sig = scene(:,5:6);
     
     s_b = scene(:,1);                   % source brightness estimates
     

@@ -163,9 +163,15 @@ cand = prior_info(cand, scene, ...
                  'bri_var_pri', 10);
  
 
-if n_pri
+%_---------------------
+%%%%% NICO EDIT  %%%%%%
+%_---------------------
+cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization of positions
+cand(:,5:6) = 1e-2; % new initialization of positions
+
     
-    %cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization _NICO EDIT          
+
+if n_pri
     
     posCov_temp = posCov;
     posCov{1} = posCov_temp{end}; % need to put n_s = n_max
@@ -186,7 +192,6 @@ mod_vote = zeros(n_model,1);
 
 cand_check{1} = cand; 
 
-U = U .* exp(1i*normrnd(0,phase_sigma,1,size(U,2))); % add piston phasing error to mixing matrix
 %%%%%%%%%%%%%%%%%%%%%%%% Above checked %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ii = 1; %period
@@ -231,7 +236,7 @@ while n_pho_used < n_SLD_true
     prob = prob_gen_2nd_mom(scene, L, ...
                             'n_modes', n_HG_modes,...
                             'aperture', aperture,...
-                            'U',U);
+                            'U',U .* exp(1i*normrnd(0,phase_sigma,1,size(U,2)))); % add piston phasing error to mixing matrix;
                         
     
     % MIST: modify the number of the photon
