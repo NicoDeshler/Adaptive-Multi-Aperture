@@ -1,6 +1,4 @@
 function AdaptiveArray_ErrorTest(array_id,num_workers)
-    
-    array_id = 1;
 
     % add directories with all algorithm functions
     addpath('Adaptive Algorithm/')
@@ -51,7 +49,6 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     
     min_sep_frac = min_sep_frac * sigma_eff / sigma;
     
-
     %------------ photons ---------------- %
     % total number of photons available
     n_pho = num_src*num_pho;
@@ -66,9 +63,9 @@ function AdaptiveArray_ErrorTest(array_id,num_workers)
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    %parpool(num_workers)
-    %parfor t = 1:trials
-    for t = 1:trials
+    parpool(num_workers)
+    parfor t = 1:trials
+    %for t = 1:trials
         
         % set seed
         seed = (array_id-1) * trials + t;
