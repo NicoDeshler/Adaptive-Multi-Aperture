@@ -19,11 +19,14 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     defaultU = 1;
     defaultdark_lambda = 0;
     defaultphase_sigma = 0;
+    defaultvisualize = 0;
+    defaultrel_sigma = 1; % relative rayleigh lengths for multi-aperture systems
     
     p = inputParser;
     
     addRequired(p,'scene');
     
+
     addOptional(p,'seed',defaultseed);
     addOptional(p,'n_imag_mu',defaultn_imag_mu);
     addOptional(p,'n_pho_SLD',defaultn_pho_SLD);
@@ -41,7 +44,9 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     addOptional(p,'U',defaultU);
     addOptional(p,'dark_lambda',defaultdark_lambda);
     addOptional(p,'phase_sigma',defaultphase_sigma);
-    
+    addOptional(p,'visualize',defaultvisualize);
+    addOptional(p,'rel_sigma',defaultrel_sigma);
+        
    
     parse(p, scene, varargin{:});
    
@@ -63,6 +68,8 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     U = p.Results.U;                        % mixing matrix for multiple apertures
     dark_lambda = p.Results.dark_lambda;    % Poisson mean of dark current photon noise
     phase_sigma = p.Results.phase_sigma;    % stdev of gaussian phasing error for multiple apertures 
+    visualize = p.Results.visualize;        % visualize estimation updates flag
+    rel_sigma = p.Results.rel_sigma;        % relative rayleigh length for multi-aperture systems (sigma / sigma_eff)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -70,37 +77,37 @@ function [est, cand_check] = measurement_multipho(scene, varargin)
     
     if n_imag_mu > 0
 
-    % Generate arrival photons on image plane
-    
-    pho_imag = imag_pho_gen(scene,...
-                            'seed', seed,...
-                            'n_imag_mu', n_imag_mu, ...
-                            'per_eps', per_eps);
-        
+        % Generate arrival photons on image plane
 
-   %%%%%%%%%%%%%%%%%%%%%%%% Imaging measurement
-    % Estimate the scene using direct imaging
-    EM_out = EM( n_max, ...
-                 pho_imag, ...
-                 'out', 'EM = cell(1,2); EM{1} = [m, tp]; EM{2} = r_ind;');
-    tp = EM_out{1};       % initial scene estimate          
-    pho_gp = EM_out{2};   % number of sources associated with each measurement outcome
-    
-    if use_SLD == 0 % only imaging measurement
-        
-        %%%%%%%%%%%%%%%%%%%%%%%% Imaging measurement
-    
-        imag_est = sortrows(tp, 'descend');
-        
-        clearvars -except imag_est seed scene tp
-        
-        filename = ['Imag_Est_',int2str(seed),'.mat'];
+        pho_imag = imag_pho_gen(scene,...
+                                'seed', seed,...
+                                'n_imag_mu', n_imag_mu, ...
+                                'per_eps', per_eps);
 
-        save(filename);
-        
-        return;
 
-    end
+       %%%%%%%%%%%%%%%%%%%%%%%% Imaging measurement
+        % Estimate the scene using direct imaging
+        EM_out = EM( n_max, ...
+                     pho_imag, ...
+                     'out', 'EM = cell(1,2); EM{1} = [m, tp]; EM{2} = r_ind;');
+        tp = EM_out{1};       % initial scene estimate          
+        pho_gp = EM_out{2};   % number of sources associated with each measurement outcome
+
+        if use_SLD == 0 % only imaging measurement
+
+            %%%%%%%%%%%%%%%%%%%%%%%% Imaging measurement
+
+            imag_est = sortrows(tp, 'descend');
+
+            clearvars -except imag_est seed scene tp
+
+            filename = ['Imag_Est_',int2str(seed),'.mat'];
+
+            save(filename);
+
+            return;
+
+        end
     
     else
         
@@ -154,20 +161,30 @@ end
 
 
 %%%%%%%%%%%%%%%%%%% prior_info %%%%%%%%%%%%%%%%%%%%%%%%
-
+%{
 cand = prior_info(cand, scene, ...
                  'n_pri', n_pri, ...
                  'pos_pri', 0, ...
                  'bri_pri', 0, ...
                  'pos_var_pri', 0, ...
                  'bri_var_pri', 10);
- 
+%}
+% ---------------------
+%%%%% NICO EDIT  %%%%%%
+% ---------------------
+cand = prior_info(cand, scene, ...
+                 'n_pri', n_pri, ...
+                 'pos_pri', 0, ...
+                 'bri_pri', bri_known, ...
+                 'pos_var_pri', 0, ...
+                 'bri_var_pri', 10);
+
 
 %_---------------------
 %%%%% NICO EDIT  %%%%%%
 %_---------------------
-cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization of positions
-cand(:,5:6) = 1e-2; % new initialization of positions
+%cand(:,3:4) = normrnd(0,1e-3,n_pri,2); % new initialization of positions
+%cand(:,5:6) = 1e-2; % new initialization of positions
 
     
 
@@ -194,9 +211,41 @@ cand_check{1} = cand;
 
 %%%%%%%%%%%%%%%%%%%%%%%% Above checked %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+if visualize
+    vis_fig = figure;
+    t_fig = tiledlayout(1,2);
+end
+
+
 ii = 1; %period
 % This is the bayesian update loop. Keep running until all photons used
 while n_pho_used < n_SLD_true
+    
+    if visualize
+        % show the ground truth and the estimates
+        nexttile(1)
+        hold on
+        scatter(scene(:,2)*rel_sigma,scene(:,3)*rel_sigma,50*log10(scene(:,1)/min(scene(:,1))+1),'filled','black')
+        scatter(cand(:,3)*rel_sigma,cand(:,4)*rel_sigma,50*log10(cand(:,1)/min(cand(:,1))+1),'filled','red');
+        errorbar(cand(:,3)*rel_sigma,cand(:,4)*rel_sigma, sqrt(cand(:,5))*rel_sigma, sqrt(cand(:,5))*rel_sigma,...
+                                                       sqrt(cand(:,6))*rel_sigma, sqrt(cand(:,6))*rel_sigma,...
+                                                       'blue',"LineStyle","none"); % position uncertainty
+        hold off
+        xlabel('$x/\sigma$','interpreter','latex')
+        ylabel('$x/\sigma$','interpreter','latex')
+        xlim([-2,2])
+        ylim([-2,2])
+        
+        % show the SLD operator eigenvectors
+        nexttile(2)
+        
+        
+        
+        
+        
+    end
+    
+    
     
     ii
     

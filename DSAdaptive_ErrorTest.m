@@ -14,13 +14,14 @@ tilde_sigma = @(n) r(n)/3;  % sub-aperture standard deviation for gaussian sub-a
 
 % the apertures
 ring3 = [Polygon(3,0,'radius',R_max-r(3)),r(3)*ones(3,1)];
+binary = [Polygon(2,0,'radius',R_max-r(2)),r(2)*ones(2,1)];
 mono = [0,0,r(1)];
 
 % collect all the apertures
 %apertures = {mono,ring3,ring5,ring7,golay5,golay7};
 %aperture_names = {'Monolith','Ring-3','Ring-5','Ring-7','Golay-5','Golay-7'};
-apertures = {mono};
-aperture_names = {'mono'};
+apertures = {ring3};
+aperture_names = {'ring-3'};
 
 
 % Datastore variables

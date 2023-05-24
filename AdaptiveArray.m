@@ -1,5 +1,6 @@
-function AdaptiveArray(array_id,num_workers)
-
+%function AdaptiveArray(array_id,num_workers)
+    
+    array_id = 1;
     % add directories with all algorithm functions
     addpath('Adaptive Algorithm/')
     addpath('Multi-Aperture/')
@@ -37,6 +38,7 @@ function AdaptiveArray(array_id,num_workers)
     sigma = 1/2/tilde_sigma;             % stdev of sub-aperture gaussian PSF
     sigma_eff = 1/2/tilde_sigma_eff;     % effective stdev of effective gaussian PSF
     
+    
     % make units of the aperture coordinates equal to [sigma^-1] to
     % correspond to the fact that Kwan defines the imag-space coordinates
     % to be [sigma].
@@ -50,9 +52,9 @@ function AdaptiveArray(array_id,num_workers)
     % ------------ Loop Through Trials ------------------ %
     
     % for each configuration run a certain number of reconstruction trials
-    parpool(num_workers)
-    parfor t = 1:trials
-    %for t = 1:trials
+    %parpool(num_workers)
+    %parfor t = 1:trials
+    for t = 1:trials
 
         % generate a random scene
         centroid_aligned = 1;
@@ -68,7 +70,9 @@ function AdaptiveArray(array_id,num_workers)
         n_pho = num_src*num_pho;
         
         % number of photons per bayesian iteration
-        n_pho_group = n_pho/50;
+        %n_pho_group = n_pho/50;
+        n_pho_group = 1e4;
+        
 
         % number of photons for direct detection pre-estimate
         n_imag_mu = 5000;
@@ -116,4 +120,4 @@ function AdaptiveArray(array_id,num_workers)
     save(fullfile(DS.save_dir,fname),'cfg_id','DS')
     
 
-end
+%end
